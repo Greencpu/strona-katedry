@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katedra Biologii Systemów / Department of Systems Biology</title>
+    <style>
+        :root {
+            --primary: #0f4c5c;
+            --secondary: #2a9d8f;
+            --accent: #e76f51;
+            --bg-light: #f8f9fa;
+            --text-dark: #2b2d42;
+            --text-muted: #6c757d;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--text-dark); }
+        
+        /* Nawigacja i Logo */
+        header { background: var(--primary); color: white; padding: 0.8rem 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .nav-container { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; flex-wrap: wrap; gap: 10px; }
+        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; }
+        .brand img { height: 42px; width: auto; border-radius: 4px; background: white; padding: 2px; }
+        .logo-text { font-size: 1.15rem; font-weight: bold; }
+        
+        nav { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+        nav a { color: white; text-decoration: none; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+
+        .btn-nav { background: var(--secondary); color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+        .btn-nav.outline { background: transparent; border: 1px solid white; }
+        .lang-switch { background: rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 6px; display: flex; gap: 4px; }
+        .lang-btn { background: none; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 0.8rem; padding: 2px 5px; }
+        .lang-btn.active { background: var(--secondary); border-radius: 3px; }
+
+        body.en .lang-pl { display: none; }
+        body.pl .lang-en { display: none; }
+
+        /* Karuzela (Pokaz slajdów u góry) */
+        .hero-slider { position: relative; height: 420px; overflow: hidden; background: #092d36; color: white; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease-in-out; background-size: cover; background-position: center; }
+        .slide.active { opacity: 0.45; }
+        .hero-content { position: relative; z-index: 2; max-width: 800px; padding: 20px; text-shadow: 0 2px 8px rgba(0,0,0,0.7); }
+        .hero-content h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .hero-content p { font-size: 1.15rem; }
+
+        /* Sekcje */
+        section { padding: 3rem 20px; max-width: 1100px; margin: auto; }
+        section:nth-child(even) { background-color: var(--bg-light); max-width: 100%; }
+        .section-inner { max-width: 1100px; margin: auto; }
+        h2 { color: var(--primary); margin-bottom: 1.5rem; border-bottom: 2px solid var(--secondary); display: inline-block; padding-bottom: 5px; }
+
+        /* Panele użytkownika i Admina */
+        .user-panel { background: #eef6f7; border: 2px solid var(--secondary); border-radius: 8px; padding: 20px; margin: 20px auto; max-width: 1100px; display: none; }
+        .admin-panel { background: #fff4f0; border: 2px solid var(--accent); border-radius: 8px; padding: 20px; margin: 20px auto; max-width: 1100px; display: none; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .form-grid input, .form-grid select, .form-grid textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+        .full-width { grid-column: span 2; }
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-approve { background: #2a9d8f; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-right: 5px; }
+        .btn-reject { background: #e63946; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+
+        /* Karty ogłoszeń */
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .news-card { background: white; border: 1px solid #e0e0e0; border-left: 4px solid var(--secondary); padding: 20px; border-radius: 5px; }
+        .news-date { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+
+        /* Listy, Kalendarz, Galeria */
+        .item-list { list-style: none; }
+        .item-list li { background: white; margin-bottom: 12px; padding: 15px; border-radius: 5px; border: 1px solid #eee; }
+        .badge { display: inline-block; background: var(--primary); color: white; padding: 2px 8px; border-radius: 3px; font-size: 0.8rem; margin-right: 8px; }
+        .calendar-wrapper { position: relative; padding-bottom: 50%; height: 0; overflow: hidden; border-radius: 8px; }
+        .calendar-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+        .gallery-item img { width: 100%; height: 180px; object-fit: cover; border-radius: 5px; }
+
+        /* Modal Logowania / Rejestracji */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 420px; position: relative; }
+        .modal-content h3 { margin-bottom: 15px; color: var(--primary); }
+        .modal-content input, .modal-content select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; }
+        .close-modal { position: absolute; right: 15px; top: 10px; font-size: 1.5rem; cursor: pointer; }
+
+        footer { background: var(--primary); color: white; padding: 2.5rem 20px; text-align: center; }
+        .log-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; background: white; }
+        .log-table th, .log-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body class="pl">
+
+    <!-- NAWIGACJA -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="brand">
+                <!-- LOGO KATEDRY (wrzuć plik logo.png do folderu img) -->
+                <img src="img/logo.png" alt="Logo Katedry" onerror="this.style.display='none'">
+                <span class="logo-text">
+                    <span class="lang-pl">Katedra Biologii Systemów</span>
+                    <span class="lang-en">Department of Systems Biology</span>
+                </span>
+            </a>
+            <nav>
+                <a href="#ogloszenia"><span class="lang-pl">Ogłoszenia</span><span class="lang-en">News</span></a>
+                <a href="#kalendarz"><span class="lang-pl">Kalendarz</span><span class="lang-en">Calendar</span></a>
+                <a href="#publikacje"><span class="lang-pl">Publikacje</span><span class="lang-en">Publications</span></a>
+                <a href="#konferencje"><span class="lang-pl">Konferencje</span><span class="lang-en">Conferences</span></a>
+                <a href="#galeria"><span class="lang-pl">Galeria</span><span class="lang-en">Gallery</span></a>
+                <a href="#kontakt"><span class="lang-pl">Kontakt</span><span class="lang-en">Contact</span></a>
+
+                <!-- Status konta -->
+                <span id="user-badge" style="font-size: 0.85rem; color: #a8dadc;"></span>
+                <button class="btn-nav" id="btn-open-auth" onclick="openModal()"><span class="lang-pl">Zaloguj / Konto</span><span class="lang-en">Login / Sign up</span></button>
+                <button class="btn-nav outline" id="btn-logout" style="display:none;" onclick="logoutUser()">Wyloguj</button>
+
+                <div class="lang-switch">
+                    <button class="lang-btn active" id="btn-pl" onclick="setLang('pl')">PL</button>
+                    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ZAPĘTLONY POKAZ SLAJDÓW U GÓRY -->
+    <div class="hero-slider">
+        <!-- Podmieniaj te pliki w folderze img, aby odświeżać charakter strony -->
+        <div class="slide active" style="background-image: url('img/slajd1.jpg');"></div>
+        <div class="slide" style="background-image: url('img/slajd2.jpg');"></div>
+        <div class="slide" style="background-image: url('img/slajd3.jpg');"></div>
+        
+        <div class="hero-content">
+            <h1>
+                <span class="lang-pl">Katedra Biologii Systemów</span>
+                <span class="lang-en">Department of Systems Biology</span>
+            </h1>
+            <p class="lang-pl">Badamy złożone sieci biologiczne, modelujemy procesy komórkowe i integrujemy dane wielkoskalowe (multi-omika).</p>
+            <p class="lang-en">Investigating complex biological networks, cellular modeling, and multi-omics data integration.</p>
+        </div>
+    </div>
+
+    <!-- PANEL DODAWANIA TREŚCI (Widoczny dla: Admin, Profesor, Pracownik, Techniczny, Doktorant; Ukryty dla Magistranta) -->
+    <div class="user-panel" id="editor-panel">
+        <h3>📝 Dodaj nowe ogłoszenie / aktualność (wymaga akceptacji Administratora)</h3>
+        <div class="form-grid">
+            <input type="text" id="news-title-pl" placeholder="Tytuł ogłoszenia (PL)" required>
+            <input type="text" id="news-title-en" placeholder="Announcement Title (EN)" required>
+            <textarea id="news-body-pl" rows="3" placeholder="Treść po polsku..." required></textarea>
+            <textarea id="news-body-en" rows="3" placeholder="Content in English..." required></textarea>
+            <button class="btn-submit full-width" onclick="submitNews()">Wyślij do akceptacji Admina</button>
+        </div>
+    </div>
+
+    <!-- PANEL ADMINISTRATORA (Akceptacja zmian + Historia zmian) -->
+    <div class="admin-panel" id="admin-panel">
+        <h3>🛡️ Panel Administratora – Moderacja i Historia Zmian</h3>
+        <p style="font-size:0.9rem; margin-bottom:10px;">Poniżej znajdują się wpisy oczekujące na publikację oraz pełny rejestr działań użytkowników.</p>
+        
+        <h4>1. Oczekujące na akceptację:</h4>
+        <div id="pending-list" style="margin-bottom: 20px;">Brak oczekujących wpisów.</div>
+
+        <h4>2. Historia zmian na stronie (Dziennik aktywności):</h4>
+        <table class="log-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Użytkownik (Rola)</th>
+                    <th>Akcja / Tytuł</th>
+                    <th>Status</th>
+                    <th>Zarządzaj</th>
+                </tr>
+            </thead>
+            <tbody id="history-log"></tbody>
+        </table>
+    </div>
+
+    <!-- OGŁOSZENIA (Ładowane dynamicznie z bazy po akceptacji Admina) -->
+    <section id="ogloszenia">
+        <div class="section-inner">
+            <h2><span class="lang-pl">Aktualności i Ogłoszenia</span><span class="lang-en">News & Announcements</span></h2>
+            <div class="news-grid" id="published-news">
+                <!-- Przykładowy wpis startowy -->
+                <div class="news-card">
+                    <div class="news-date">14.11.2026</div>
+                    <h3 class="lang-pl">Witamy na nowej stronie Katedry!</h3>
+                    <h3 class="lang-en">Welcome to our new Department website!</h3>
+                    <p class="lang-pl">Pracownicy i doktoranci mogą zalogować się u góry strony, aby dodawać nowe ogłoszenia.</p>
+                    <p class="lang-en">Staff and PhD students can log in at the top of the page to submit new announcements.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KALENDARZ -->
+    <section id="kalendarz">
+        <div class="section-inner">
+            <h2><span class="lang-pl">Kalendarz Wydarzeń</span><span class="lang-en">Events Calendar</span></h2>
+            <div class="calendar-wrapper">
+                <iframe src="https://calendar.google.com/calendar/embed?src=pl.polish%23holiday%40group.v.calendar.google.com&ctz=Europe%2FWarsaw"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- PUBLIKACJE -->
+    <section id="publikacje">
+        <div class="section-inner">
+            <h2><span class="lang-pl">Wybrane Publikacje</span><span class="lang-en">Selected Publications</span></h2>
+            <ul class="item-list">
+                <li><span class="badge">2026</span> <strong>Kowalski J. et al.</strong> (2026). <em>Systems biology of stress response.</em> Bioinformatics.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- KONFERENCJE -->
+    <section id="konferencje">
+        <div class="section-inner">
+            <h2><span class="lang-pl">Konferencje i Plakaty</span><span class="lang-en">Conferences & Posters</span></h2>
+            <ul class="item-list">
+                <li><span class="badge">Poster</span> <strong>ICSB 2026</strong> – <a href="plakaty/przykladowy-plakat.pdf" target="_blank">Pobierz PDF</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- GALERIA -->
+    <section id="galeria">
+        <div class="section-inner">
+            <h2><span class="lang-pl">Galeria z Wydarzeń</span><span class="lang-en">Event Gallery</span></h2>
+            <div class="gallery-grid">
+                <div class="gallery-item"><img src="img/wydarzenie1.jpg" alt="Wydarzenie 1"></div>
+                <div class="gallery-item"><img src="img/wydarzenie2.jpg" alt="Wydarzenie 2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KONTAKT -->
+    <footer id="kontakt">
+        <h2><span class="lang-pl">Kontakt i Dane Podstawowe</span><span class="lang-en">Contact</span></h2>
+        <p><strong>Katedra Biologii Systemów</strong> | E-mail: biologiasystemow@uczelnia.edu.pl</p>
+    </footer>
+
+    <!-- OKNO LOGOWANIA I REJESTRACJI -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title">Logowanie / Rejestracja</h3>
+            <input type="text" id="auth-name" placeholder="Imię i Nazwisko (przy rejestracji)">
+            <input type="email" id="auth-email" placeholder="Adres e-mail (najlepiej uczelniany)">
+            <input type="password" id="auth-pass" placeholder="Hasło (min. 6 znaków)">
+            <select id="auth-role">
+                <option value="magistrant">Rola: Magistrant (tylko odczyt)</option>
+                <option value="doktorant">Rola: Doktorant</option>
+                <option value="techniczny">Rola: Pracownik techniczny</option>
+                <option value="pracownik">Rola: Pracownik naukowy</option>
+                <option value="profesor">Rola: Profesor</option>
+            </select>
+            <button class="btn-submit" style="width:100%; margin-bottom:8px;" onclick="loginUser()">Zaloguj się</button>
+            <button class="btn-submit" style="width:100%; background: var(--secondary);" onclick="registerUser()">Załóż nowe konto</button>
+        </div>
+    </div>
+
+    <!-- SKRYPTY: KARUZELA, JĘZYKI ORAZ FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // =========================================================================
+        // TUTAJ WKLEJ SWOJĄ KONFIGURACJĘ Z KONSOLI FIREBASE (Krok 1, punkt 6)
+        // =========================================================================
+        const firebaseConfig = {
+            apiKey: "WKLEJ_SWOJ_API_KEY",
+            authDomain: "TWOJ_PROJEKT.firebaseapp.com",
+            projectId: "TWOJ_PROJEKT",
+            storageBucket: "TWOJ_PROJEKT.appspot.com",
+            messagingSenderId: "000000000000",
+            appId: "1:000000000000:web:000000000000"
+        };
+
+        // WPISZ SWÓJ ADRES E-MAIL ADMINA (To konto automatycznie dostanie pełne prawa Admina)
+        const ADMIN_EMAIL = "twoj.email@uczelnia.edu.pl";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUserData = null;
+
+        // Rejestracja nowego konta z wyborem roli
+        window.registerUser = async () => {
+            const name = document.getElementById('auth-name').value;
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            let role = document.getElementById('auth-role').value;
+            if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) role = 'admin';
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "users", cred.user.uid), { name, email, role });
+                alert("Konto utworzone! Rola: " + role);
+                closeModal();
+            } catch (e) { alert("Błąd rejestracji: " + e.message); }
+        };
+
+        // Logowanie
+        window.loginUser = async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                closeModal();
+            } catch (e) { alert("Błąd logowania: " + e.message); }
+        };
+
+        window.logoutUser = () => signOut(auth);
+
+        // Sprawdzanie uprawnień po zalogowaniu
+        onAuthStateChanged(auth, async (user) => {
+            const editorPanel = document.getElementById('editor-panel');
+            const adminPanel = document.getElementById('admin-panel');
+            const userBadge = document.getElementById('user-badge');
+            const btnAuth = document.getElementById('btn-open-auth');
+            const btnLogout = document.getElementById('btn-logout');
+
+            if (user) {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                currentUserData = snap.exists() ? snap.data() : { name: user.email, email: user.email, role: 'magistrant' };
+                if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) currentUserData.role = 'admin';
+
+                userBadge.innerText = `${currentUserData.name} (${currentUserData.role})`;
+                btnAuth.style.display = 'none';
+                btnLogout.style.display = 'inline-block';
+
+                // Magistrant ma TYLKO ODCZYT (nie widzi formularza edycji)
+                if (currentUserData.role !== 'magistrant') {
+                    editorPanel.style.display = 'block';
+                } else {
+                    editorPanel.style.display = 'none';
+                }
+
+                // Tylko Admin widzi panel akceptacji i historię zmian
+                if (currentUserData.role === 'admin') {
+                    adminPanel.style.display = 'block';
+                }
+            } else {
+                currentUserData = null;
+                userBadge.innerText = '';
+                btnAuth.style.display = 'inline-block';
+                btnLogout.style.display = 'none';
+                editorPanel.style.display = 'none';
+                adminPanel.style.display = 'none';
+            }
+        });
+
+        // Dodawanie ogłoszenia przez użytkownika (trafia do kolejki Admina)
+        window.submitNews = async () => {
+            if (!currentUserData || currentUserData.role === 'magistrant') return;
+            const titlePl = document.getElementById('news-title-pl').value;
+            const titleEn = document.getElementById('news-title-en').value;
+            const bodyPl = document.getElementById('news-body-pl').value;
+            const bodyEn = document.getElementById('news-body-en').value;
+
+            if (!titlePl || !bodyPl) return alert("Wypełnij treść ogłoszenia!");
+
+            await addDoc(collection(db, "announcements"), {
+                titlePl, titleEn: titleEn || titlePl,
+                bodyPl, bodyEn: bodyEn || bodyPl,
+                author: currentUserData.name,
+                role: currentUserData.role,
+                date: new Date().toLocaleDateString('pl-PL'),
+                timestamp: Date.now(),
+                status: currentUserData.role === 'admin' ? 'approved' : 'pending'
+            });
+
+            document.getElementById('news-title-pl').value = '';
+            document.getElementById('news-title-en').value = '';
+            document.getElementById('news-body-pl').value = '';
+            document.getElementById('news-body-en').value = '';
+            alert(currentUserData.role === 'admin' ? "Opublikowano!" : "Wysłano do akceptacji Administratora!");
+        };
+
+        // Akcje Admina: Akceptacja lub Odrzucenie/Cofnięcie zmiany
+        window.approveItem = async (id) => await updateDoc(doc(db, "announcements", id), { status: 'approved' });
+        window.rejectItem = async (id) => {
+            if (confirm("Czy na pewno odrzucić / usunąć ten wpis?")) {
+                await deleteDoc(doc(db, "announcements", id));
+            }
+        };
+
+        // Nasłuchiwanie zmian w bazie na żywo
+        const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const pubContainer = document.getElementById('published-news');
+            const pendContainer = document.getElementById('pending-list');
+            const logContainer = document.getElementById('history-log');
+
+            let pubHTML = '';
+            let pendHTML = '';
+            let logHTML = '';
+
+            snapshot.forEach((docSnap) => {
+                const d = docSnap.data();
+                const id = docSnap.id;
+
+                // Wpisy zaakceptowane (widoczne dla wszystkich)
+                if (d.status === 'approved') {
+                    pubHTML += `
+                        <div class="news-card">
+                            <div class="news-date">${d.date} | Autor: ${d.author}</div>
+                            <h3 class="lang-pl">${d.titlePl}</h3>
+                            <h3 class="lang-en">${d.titleEn}</h3>
+                            <p class="lang-pl">${d.bodyPl}</p>
+                            <p class="lang-en">${d.bodyEn}</p>
+                        </div>`;
+                }
+
+                // Wpisy oczekujące (tylko dla Admina)
+                if (d.status === 'pending') {
+                    pendHTML += `
+                        <div style="background:white; padding:10px; border:1px solid #ccc; margin-bottom:8px; border-radius:4px;">
+                            <strong>${d.titlePl}</strong> (Autor: ${d.author} – <em>${d.role}</em>, ${d.date})<br>
+                            <small>${d.bodyPl}</small><br><br>
+                            <button class="btn-approve" onclick="approveItem('${id}')">✔ Zaakceptuj</button>
+                            <button class="btn-reject" onclick="rejectItem('${id}')">✖ Odrzuć</button>
+                        </div>`;
+                }
+
+                // Historia zmian dla Admina (wszystkie akcje)
+                logHTML += `
+                    <tr>
+                        <td>${d.date}</td>
+                        <td>${d.author} (${d.role})</td>
+                        <td>Dodano ogłoszenie: <strong>${d.titlePl}</strong></td>
+                        <td>${d.status === 'approved' ? '✅ Opublikowane' : '⏳ Oczekuje'}</td>
+                        <td><button class="btn-reject" onclick="rejectItem('${id}')">Cofnij / Usuń</button></td>
+                    </tr>`;
+            });
+
+            if (pubHTML) pubContainer.innerHTML = pubHTML;
+            pendContainer.innerHTML = pendHTML || "Brak oczekujących wpisów.";
+            logContainer.innerHTML = logHTML;
+        });
+    </script>
+
+    <!-- SKRYPT KARUZELI I JĘZYKÓW -->
+    <script>
+        // Automatyczny pokaz slajdów co 5 sekund
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 5000);
+
+        // Modal logowania
+        function openModal() { document.getElementById('auth-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
+
+        // Przełącznik języków
+        function setLang(lang) {
+            document.body.className = lang;
+            document.getElementById('btn-pl').classList.toggle('active', lang === 'pl');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            localStorage.setItem('preferredLang', lang);
+        }
+        const savedLang = localStorage.getItem('preferredLang');
+        if (savedLang) setLang(savedLang);
+    </script>
+</body>
+</html>
